@@ -1,4 +1,5 @@
 (ns cljs-numbers.test
+  (:require-macros [cljs-numbers.test-macros :as m])
   (:use [cljs-numbers.core :only [-add bigint]]))
 
 (defn is
