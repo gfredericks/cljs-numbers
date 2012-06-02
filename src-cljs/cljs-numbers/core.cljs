@@ -1,5 +1,6 @@
 (ns cljs-numbers.core
-  (:require [goog.math.Integer :as int]))
+  (:require [goog.math.Integer :as int]
+            [cljs.core :as cljs]))
 
 (defn bigint?
   [x]
@@ -27,9 +28,11 @@
   (-negate [x]))
 
 (defprotocol Ordered
-  (-compare-to [x y]))
+  (-compare [x y]))
 (defprotocol CompareToDouble
   (-compare-to-double [x y]))
+(defprotocol CompareToInteger
+  (-compare-to-integer [x y]))
 
 (extend-type number
   Add
@@ -42,7 +45,17 @@
   (-add-with-integer [x y]
     (-add-with-double y x))
   Negate
-  (-negate [x] (- x)))
+  (-negate [x] (- x))
+  Ordered
+  (-compare [x y] (-compare-to-double y x))
+  CompareToDouble
+  (-compare-to-double
+    [x y]
+    (cljs/compare x y))
+  CompareToInteger
+  (-compare-to-integer
+    [x y]
+    (-compare-to-integer (bigint x) y)))
 
 ;; Is this a good idea?
 (comment
@@ -64,7 +77,17 @@
   Negate
   (-negate [x] (.negate x))
   Invert
-  (-invert [x] (ratio 1 x)))
+  (-invert [x] (ratio 1 x))
+  Ordered
+  (-compare [x y] (-compare-to-integer y x))
+  CompareToDouble
+  (-compare-to-double
+    [x y]
+    (-compare-to-integer x (bigint y)))
+  CompareToInteger
+  (-compare-to-integer
+    [x y]
+    (.compare x y)))
 
 
 (defn gcd
@@ -96,3 +119,15 @@
            d (gcd x y)]
        ;; TODO: only x can be negative
        (Ratio. (/ x d) (/ y d)))))
+
+(defn ratio?
+  [x]
+  (instance? Ratio x))
+
+(defn double?
+  [x]
+  (number? x))
+
+(defn eq
+  [x y]
+  (= 0 (-compare x y)))

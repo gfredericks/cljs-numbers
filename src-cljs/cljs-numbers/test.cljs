@@ -1,22 +1,52 @@
 (ns cljs-numbers.test
   (:require-macros [cljs-numbers.test-macros :as m])
-  (:use [cljs-numbers.core :only [-add bigint]]))
-
-(defn is
-  [x]
-  (assert x))
+  (:use [cljs-numbers.core :only [-add bigint eq bigint? ratio? double?]]))
 
 (defn run-tests
   []
-  (let [d2 2
-        d5 5
-        d7 7
-        i2 (bigint 2)
-        i5 (bigint 5)
-        i7 (bigint 7)]
+  (m/with-numeric-literals
+    ;;
+    ;; numeric literals
+    ;;
+    (m/are [pred x] (pred x)
+           bigint? 2
+           bigint? 9N
+           bigint? -32888888888888888888888888888888888888888444N
+           ratio? 3/4
+           ratio? -9/8888888888888888888888888888888888888888888
+           double? 8.7
+           double? 1.0)
+    (m/are [pred x] (not (pred x))
+           double? 2
+           double? 9N
+           double? 3/4
+           double? -8888888888888888888888888888888888888888888/3
+           ratio? 8.9
+           ratio? 3
+           ratio? 3N
+           bigint? 8.2
+           bigint? 8/3
+           bigint? 77777777777.7)
     
-    (is (= 7 (-add 2 5)))
-    (is (= "7" (str (-add i2 i5))))
-    (is (= d7 (-add d2 i5))))
+    ;;
+    ;; addition
+    ;;
+    (m/are [x y z] (eq z (-add x y))
+
+           ;; double + double
+           2.0 5.0 7.0
+           -3.0 8.0 5.0
+           11.5 12.5 24.0
+           700.0 800.0 1500.0
+
+           ;; integer + integer
+           2 5 7
+           111111111311111111111111111111111111111411111111N
+           222222222222222222222222922222222222222522222222N
+           333333333533333333333334033333333333333933333333N
+           -20N -44N -64N
+
+           ))
   
-  (.log js/console "Tests pass"))
+  (.log js/console "Tests pass")
+  :pass)
