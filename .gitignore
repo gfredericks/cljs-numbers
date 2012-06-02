@@ -10,3 +10,5 @@
 .lein-cljsbuild-*
 *~
 main.js
+\#*\#
+.\#*
