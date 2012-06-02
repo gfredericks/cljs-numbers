@@ -1,4 +1,5 @@
 (ns cljs-numbers.core
+  (:refer-clojure :exclude [+ - * / < > <= >= =])
   (:require [goog.math.Integer :as int]
             [cljs.core :as cljs]))
 
@@ -39,13 +40,13 @@
   (-add [x y] (-add-with-double y x))
   AddWithDouble
   (-add-with-double [x y]
-    (+ x y))
+    (cljs/+ x y))
   ;; I have a hard time reasoning about whether or not this is necessary
   AddWithInteger
   (-add-with-integer [x y]
     (-add-with-double y x))
   Negate
-  (-negate [x] (- x))
+  (-negate [x] (cljs/- x))
   Ordered
   (-compare [x y] (-compare-to-double y x))
   CompareToDouble
@@ -111,6 +112,10 @@
     ;; TODO: only n is negative?
     (Ratio. d n)))
 
+(defn /
+  [x y]
+  :STUB)
+
 (defn ratio
   ([x] (ratio x 1))
   ([x y]
@@ -128,6 +133,14 @@
   [x]
   (number? x))
 
-(defn eq
-  [x y]
-  (= 0 (-compare x y)))
+(defn =
+  ([x] true)
+  ([x y] (cljs/= 0 (-compare x y)))
+  ([x y z & more]
+     (every? (partial apply =) (partition 2 (list* x y z more)))))
+
+(defn +
+  ([] 0)
+  ([x] x)
+  ([x y] (-add x y))
+  ([x y z & more] (reduce -add (list* x y z more))))

@@ -1,6 +1,7 @@
 (ns cljs-numbers.test
+  (:refer-clojure :exclude [+])
   (:require-macros [cljs-numbers.test-macros :as m])
-  (:use [cljs-numbers.core :only [-add bigint eq bigint? ratio? double?]]))
+  (:use [cljs-numbers.core :only [+ = bigint bigint? ratio? double?]]))
 
 (defn run-tests
   []
@@ -31,7 +32,7 @@
     ;;
     ;; addition
     ;;
-    (m/are [x y z] (eq z (-add x y))
+    (m/are [x y z] (= z (+ x y))
 
            ;; double + double
            2.0 5.0 7.0
