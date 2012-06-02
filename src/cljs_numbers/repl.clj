@@ -5,7 +5,7 @@
             [compojure.handler]))
 
 (defroutes main-routes
-  (GET "/" [] (slurp "tests.html"))
+  (GET "/" [] (slurp "test.html"))
   (GET "/main.js" [] (slurp "main.js"))
   (route/not-found "<h1>Page not found</h1>"))
 
