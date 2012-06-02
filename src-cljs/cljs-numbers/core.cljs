@@ -22,6 +22,15 @@
 (defprotocol AddWithRatio
   (-add-with-ratio [x y]))
 
+(defprotocol Multiply
+  (-multiply [x y]))
+(defprotocol MultiplyWithDouble
+  (-multiply-with-double [x y]))
+(defprotocol MultiplyWithInteger
+  (-multiply-with-integer [x y]))
+(defprotocol MultiplyWithRatio
+  (-multiply-with-ratio [x y]))
+
 (defprotocol Invert
   (-invert [x]))
 
@@ -45,6 +54,14 @@
   AddWithInteger
   (-add-with-integer [x y]
     (-add-with-double y x))
+  Multiply
+  (-multiply [x y] (-multiply-with-double y x))
+  MultiplyWithDouble
+  (-multiply-with-double [x y]
+    (cljs/* x y))
+  MultiplyWithInteger
+  (-multiply-with-integer [x y]
+    (-multiply (bigint x) y))
   Negate
   (-negate [x] (cljs/- x))
   Ordered
@@ -75,6 +92,15 @@
   AddWithInteger
   (-add-with-integer [x y]
     (.add x y))
+  Multiply
+  (-multiply [x y]
+    (-multiply-with-integer y x))
+  MultiplyWithDouble
+  (-multiply-with-double [x y]
+    (-multiply x (bigint y)))
+  MultiplyWithInteger
+  (-multiply-with-integer [x y]
+    (.multiply x y))
   Negate
   (-negate [x] (.negate x))
   Invert
@@ -144,3 +170,9 @@
   ([x] x)
   ([x y] (-add x y))
   ([x y z & more] (reduce -add (list* x y z more))))
+
+(defn *
+  ([] 0)
+  ([x] x)
+  ([x y] (-multiply x y))
+  ([x y z & more] (reduce -multiply (list* x y z more))))

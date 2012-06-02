@@ -1,7 +1,7 @@
 (ns cljs-numbers.test
-  (:refer-clojure :exclude [+])
+  (:refer-clojure :exclude [+ * =])
   (:require-macros [cljs-numbers.test-macros :as m])
-  (:use [cljs-numbers.core :only [+ = bigint bigint? ratio? double?]]))
+  (:use [cljs-numbers.core :only [+ * = bigint bigint? ratio? double?]]))
 
 (defn run-tests
   []
@@ -46,8 +46,25 @@
            222222222222222222222222922222222222222522222222N
            333333333533333333333334033333333333333933333333N
            -20N -44N -64N
+           )
 
-           ))
+    ;;
+    ;; Multiplication
+    ;;
+    (m/are [x y z] (= z (* x y))
+           ;; double * double
+           7.0 8.0 56.0
+           2.5 2.0 5.0
+           700.0 -700.0 -490000.0
+
+           ;; bigint * bigint
+           3 3 9
+           100000000000000000000N
+           700000000000000000000N
+           70000000000000000000000000000000000000000N
+           )
+    )
+
   
   (.log js/console "Tests pass")
   :pass)
