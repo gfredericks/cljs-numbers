@@ -1,19 +1,8 @@
 <html>
   <head>
     <script type="text/javascript">var CLOSURE_NO_DEPS=true;</script>
-    <script type="text/javascript" src="main.js"></script>
+    <script type="text/javascript" src="test.js"></script>
   </head>
   <body>
-    <button onclick="cljs_numbers.test.run_tests()">Rerun Tests</button>
-    <b>Test Results:</b> <span id="test-result"></span>
-    <script type="text/javascript">
-      var result = document.getElementById("test-result");
-      try {
-        cljs_numbers.test.run_tests();
-        result.innerText = "PASS";
-      } catch(e) {
-        result.innerText = "" + e;
-      }
-    </script>
   </body>
 </html>

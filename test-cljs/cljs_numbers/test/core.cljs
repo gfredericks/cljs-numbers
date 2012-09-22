@@ -4,9 +4,9 @@
                    [cljs-numbers.syntax-macros :as sm])
   (:use [cljs-numbers.core :only [+ * = bigint bigint? ratio? double?]]))
 
+
 (defn run-tests
   []
-  (js/print "I'm running your mom...")
   (sm/with-numeric-literals
     ;;
     ;; numeric literals
@@ -71,8 +71,7 @@
     )
 
 
-  (js/print "Tests pass")
+  (.write js/document "Here go my tests passed")
   :pass)
 
-(js/print "Running tests")
-(run-tests);;foo
+(run-tests)
