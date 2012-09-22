@@ -1,5 +1,5 @@
-(ns cljs-numbers.test-macros
-  (:use [clojure.walk :only [postwalk]]))
+(ns cljs-numbers.test.macros
+  (:require [clojure.walk :refer [postwalk]]))
 
 (defmacro is
   [x]

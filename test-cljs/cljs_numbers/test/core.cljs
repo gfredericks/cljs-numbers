@@ -1,16 +1,17 @@
-(ns cljs-numbers.test
+(ns cljs-numbers.test.core
   (:refer-clojure :exclude [+ * =])
-  (:require-macros [cljs-numbers.test-macros :as tm]
+  (:require-macros [cljs-numbers.test.macros :refer [are]]
                    [cljs-numbers.syntax-macros :as sm])
   (:use [cljs-numbers.core :only [+ * = bigint bigint? ratio? double?]]))
 
 (defn run-tests
   []
+  (js/print "I'm running your mom...")
   (sm/with-numeric-literals
     ;;
     ;; numeric literals
     ;;
-    (tm/are [pred x] (pred x)
+    (are [pred x] (pred x)
             bigint? 2
             bigint? 9N
             bigint? -32888888888888888888888888888888888888888444N
@@ -18,7 +19,7 @@
             ratio? -9/8888888888888888888888888888888888888888888
             double? 8.7
             double? 1.0)
-    (tm/are [pred x] (not (pred x))
+    (are [pred x] (not (pred x))
             double? 2
             double? 9N
             double? 3/4
@@ -29,11 +30,11 @@
             bigint? 8.2
             bigint? 8/3
             bigint? 77777777777.7)
-    
+
     ;;
     ;; addition
     ;;
-    (tm/are [x y z] (= z (+ x y))
+    (are [x y z] (= z (+ x y))
 
             ;; double + double
             2.0 5.0 7.0
@@ -55,7 +56,7 @@
     ;;
     ;; Multiplication
     ;;
-    (tm/are [x y z] (= z (* x y))
+    (are [x y z] (= z (* x y))
             ;; double * double
              7.0 8.0 56.0
             2.5 2.0 5.0
@@ -69,6 +70,9 @@
            )
     )
 
-  
-  (.log js/console "Tests pass")
+
+  (js/print "Tests pass")
   :pass)
+
+(js/print "Running tests")
+(run-tests);;foo
