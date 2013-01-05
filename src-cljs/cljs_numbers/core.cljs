@@ -1,5 +1,5 @@
 (ns cljs-numbers.core
-  (:refer-clojure :exclude [+ - * / < > <= >= =])
+  (:refer-clojure :exclude [+ - * / < > <= >= = -compare])
   (:require [goog.math.Integer :as int]
             [cljs.core :as cljs]))
 
@@ -15,8 +15,6 @@
 
 (defprotocol Add
   (-add [x y]))
-(defprotocol AddWithDouble
-  (-add-with-double [x y]))
 (defprotocol AddWithInteger
   (-add-with-integer [x y]))
 (defprotocol AddWithRatio
@@ -24,8 +22,6 @@
 
 (defprotocol Multiply
   (-multiply [x y]))
-(defprotocol MultiplyWithDouble
-  (-multiply-with-double [x y]))
 (defprotocol MultiplyWithInteger
   (-multiply-with-integer [x y]))
 (defprotocol MultiplyWithRatio
@@ -39,65 +35,53 @@
 
 (defprotocol Ordered
   (-compare [x y]))
-(defprotocol CompareToDouble
-  (-compare-to-double [x y]))
 (defprotocol CompareToInteger
   (-compare-to-integer [x y]))
+(defprotocol CompareToRatio
+  (-compare-to-ratio [x y]))
 
 (extend-type number
   Add
-  (-add [x y] (-add-with-double y x))
-  AddWithDouble
-  (-add-with-double [x y]
-    (cljs/+ x y))
+  (-add [x y] (-add (bigint x) y))
   ;; I have a hard time reasoning about whether or not this is necessary
   AddWithInteger
   (-add-with-integer [x y]
-    (-add-with-double y x))
+    (-add-with-integer (bigint x) y))
+  AddWithRatio
+  (-add-with-ratio [x y]
+    (-add-with-ratio (bigint x) y))
   Multiply
-  (-multiply [x y] (-multiply-with-double y x))
-  MultiplyWithDouble
-  (-multiply-with-double [x y]
-    (cljs/* x y))
+  (-multiply [x y] (-multiply (bigint x) y))
   MultiplyWithInteger
   (-multiply-with-integer [x y]
     (-multiply (bigint x) y))
   Negate
-  (-negate [x] (cljs/- x))
+  (-negate [x] (-negate (bigint x)))
   Ordered
-  (-compare [x y] (-compare-to-double y x))
-  CompareToDouble
-  (-compare-to-double
-    [x y]
-    (cljs/compare x y))
+  (-compare [x y] (-compare (bigint x) y))
   CompareToInteger
   (-compare-to-integer
     [x y]
-    (-compare-to-integer (bigint x) y)))
-
-;; Is this a good idea?
-(comment
-  (extend-type default
-    AddWithInteger
-    (-add-with-integer [x y] (-add y x))))
+    (-compare-to-integer (bigint x) y))
+  CompareToRatio
+  (-compare-to-ratio
+    [x y]
+    (-compare-to-ratio (bigint x) y)))
 
 (declare ratio)
 
 (extend-type goog.math.Integer
   Add
   (-add [x y] (-add-with-integer y x))
-  AddWithDouble
-  (-add-with-double [x y]
-    (-add (.toNumber x) y)) ;; should we do (+ ...) directly here?
   AddWithInteger
   (-add-with-integer [x y]
     (.add x y))
+  AddWithRatio
+  (-add-with-ratio [x y]
+    (-add-with-ratio (ratio x) y))
   Multiply
   (-multiply [x y]
     (-multiply-with-integer y x))
-  MultiplyWithDouble
-  (-multiply-with-double [x y]
-    (-multiply x (bigint y)))
   MultiplyWithInteger
   (-multiply-with-integer [x y]
     (.multiply x y))
@@ -107,22 +91,20 @@
   (-invert [x] (ratio 1 x))
   Ordered
   (-compare [x y] (-compare-to-integer y x))
-  CompareToDouble
-  (-compare-to-double
-    [x y]
-    (-compare-to-integer x (bigint y)))
   CompareToInteger
   (-compare-to-integer
     [x y]
-    (.compare x y)))
-
+    (.compare x y))
+  CompareToRatio
+  (-compare-to-ratio
+    [x y]
+    (-compare-to-ratio (ratio x) y)))
 
 (defn gcd
   [x y]
-  (if (zero? y)
+  (if (.isZero y)
     x
-    (recur y (mod x y))))
-
+    (recur y (.modulo x y))))
 
 (deftype Ratio
   ;; "Ratios should not be constructed directly by user code; we assume n and d are
@@ -130,26 +112,65 @@
   [n d]
   Add
   (-add [x y] (-add-with-ratio y x))
+  AddWithInteger
+  (-add-with-integer [x y]
+    (-add-with-ratio x (ratio y)))
+  AddWithRatio
+  (-add-with-ratio [x y]
+    (let [+ -add-with-integer
+          * -multiply-with-integer
+          n' (+ (* (.-n x) (.-d y))
+                (* (.-d x) (.-n y)))
+          d' (* (.-d x) (.-d y))]
+      (ratio n' d')))
+  Multiply
+  (-multiply [x y] (-multiply-with-ratio y x))
+  MultiplyWithInteger
+  (-multiply-with-integer [x y]
+    (-multiply x (ratio y)))
+  MultiplyWithRatio
+  (-multiply-with-ratio [x y]
+    (let [* -multiply-with-integer
+          n' (* (.-n x) (.-n y))
+          d' (* (.-d x) (.-d y))]
+      (ratio n' d')))
   Negate
   (-negate [x]
     (Ratio. (-negate n) d))
   Invert
   (-invert [x]
-    ;; TODO: only n is negative?
-    (Ratio. d n)))
+    (if (.isNegative n)
+      (Ratio. (.negate d) (.negate n))
+      (Ratio. d n)))
+  Ordered
+  (-compare [x y]
+    (-compare-to-ratio y x))
+  CompareToInteger
+  (-compare-to-integer [x y]
+    (-compare-to-ratio (ratio y) x))
+  CompareToRatio
+  (-compare-to-ratio [x y]
+    (let [* -multiply-with-integer]
+      (-compare-to-integer (* (.-n x) (.-d y))
+                           (* (.-n y) (.-d x))))))
 
 (defn /
   [x y]
   :STUB)
 
+(def ONE (bigint 1))
+
 (defn ratio
-  ([x] (ratio x 1))
+  ([x] (ratio x ONE))
   ([x y]
      (let [x (bigint x),
            y (bigint y),
-           d (gcd x y)]
-       ;; TODO: only x can be negative
-       (Ratio. (/ x d) (/ y d)))))
+           d (gcd x y)
+           x' (.divide x d)
+           y' (.divide y d)]
+       (if (.isNegative y)
+         (Ratio. (.negate x') (.negate y'))
+         (Ratio. x' y')))))
 
 (defn ratio?
   [x]
@@ -176,3 +197,31 @@
   ([x] x)
   ([x y] (-multiply x y))
   ([x y z & more] (reduce -multiply (list* x y z more))))
+
+
+;; debugging
+(extend-type default
+  AddWithInteger
+  (-add-with-integer [x y]
+    (.log js/console "WAAAT")
+    (.log js/console x y)
+    (.log js/console
+          (.constructor x)
+          (.constructor y))
+    x)
+  AddWithRatio
+  (-add-with-ratio [x y]
+    (.log js/console "WAAAT--?")
+    (.log js/console x y)
+    (.log js/console
+          (.constructor x)
+          (.constructor y))
+    x)
+  Ordered
+  (-compare [x y]
+    (.log js/console "WEERRT")
+    (.log js/console x y)
+    (.log js/console
+          (.constructor x)
+          (.constructor y))
+    x))
