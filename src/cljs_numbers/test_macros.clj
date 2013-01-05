@@ -7,5 +7,9 @@
 
 (defmacro are
   [names expectation & examples]
-  (list 'doseq [names (vec (map vec (partition (count names) examples)))]
-        (list `is expectation)))
+  (cons 'do
+        (for [vals (partition (count names) examples)]
+          (list 'is
+                (list 'let
+                      (vec (mapcat list names vals))
+                      expectation)))))
