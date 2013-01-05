@@ -43,6 +43,8 @@
   (-compare-to-double [x y]))
 (defprotocol CompareToInteger
   (-compare-to-integer [x y]))
+(defprotocol CompareToRatio
+  (-compare-to-ratio [x y]))
 
 (extend-type number
   Add
@@ -135,8 +137,27 @@
     (Ratio. (-negate n) d))
   Invert
   (-invert [x]
-    ;; TODO: only n is negative?
-    (Ratio. d n)))
+    (cond
+     (= n 0)
+     (throw "Cannot divide by zero")
+
+     (< n 0)
+     (Ratio. (- d) (- n))
+
+     :else
+     (Ratio. d n)))
+  AddWithRatio
+  (-add-with-ratio [x y]
+    (let [d' (* d (.-d y))
+          n' (+ (* n (.-d y)) (* d (.-n y)))
+          x (gcd d' n')]
+      (Ratio. (/ n' x) (/ d' x))))
+  MultiplyWithRatio
+  (-multiply-with-ratio [x y]
+    (let [n' (* n (.-n y))
+          d' (* d (.-d y))
+          x (gcd n' d')]
+      (Ratio. (/ n' x) (/ d' x)))))
 
 (defn /
   [x y]
