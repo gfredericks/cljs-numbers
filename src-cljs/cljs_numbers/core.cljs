@@ -1,5 +1,5 @@
 (ns cljs-numbers.core
-  (:refer-clojure :exclude [+ - * / < > <= >= = -compare])
+  (:refer-clojure :exclude [+ - * / < > <= >= = -compare zero? neg? pos?])
   (:require [goog.math.Integer :as int]
             [cljs.core :as cljs]))
 
@@ -54,7 +54,10 @@
   (-multiply [x y] (-multiply (bigint x) y))
   MultiplyWithInteger
   (-multiply-with-integer [x y]
-    (-multiply (bigint x) y))
+    (-multiply-with-integer (bigint x) y))
+  MultiplyWithRatio
+  (-multiply-with-ratio [x y]
+    (-multiply-with-ratio (bigint x) y))
   Negate
   (-negate [x] (-negate (bigint x)))
   Ordered
@@ -85,12 +88,15 @@
   MultiplyWithInteger
   (-multiply-with-integer [x y]
     (.multiply x y))
+  MultiplyWithRatio
+  (-multiply-with-ratio [x y]
+    (-multiply-with-ratio (ratio x) y))
   Negate
   (-negate [x] (.negate x))
   Invert
   (-invert [x] (ratio 1 x))
   Ordered
-  (-compare [x y] (-compare-to-integer y x))
+  (-compare [x y] (cljs/- (-compare-to-integer y x)))
   CompareToInteger
   (-compare-to-integer
     [x y]
@@ -144,20 +150,17 @@
       (Ratio. d n)))
   Ordered
   (-compare [x y]
-    (-compare-to-ratio y x))
+    (cljs/- (-compare-to-ratio y x)))
   CompareToInteger
   (-compare-to-integer [x y]
-    (-compare-to-ratio (ratio y) x))
+    (-compare-to-ratio x (ratio y)))
   CompareToRatio
   (-compare-to-ratio [x y]
     (let [* -multiply-with-integer]
       (-compare-to-integer (* (.-n x) (.-d y))
                            (* (.-n y) (.-d x))))))
 
-(defn /
-  [x y]
-  :STUB)
-
+(def ZERO (bigint 0))
 (def ONE (bigint 1))
 
 (defn ratio
@@ -168,7 +171,7 @@
            d (gcd x y)
            x' (.divide x d)
            y' (.divide y d)]
-       (if (.isNegative y)
+       (if (.isNegative y')
          (Ratio. (.negate x') (.negate y'))
          (Ratio. x' y')))))
 
@@ -180,11 +183,43 @@
   [x]
   (number? x))
 
+;;
+;; Convenience functions
+;;
+
+(defn- vararg
+  [f x y z more]
+  (every? (partial apply f) (partition 2 (list* x y z more))))
+
 (defn =
   ([x] true)
   ([x y] (cljs/= 0 (-compare x y)))
   ([x y z & more]
-     (every? (partial apply =) (partition 2 (list* x y z more)))))
+     (vararg = x y z more)))
+
+(defn <
+  ([x] true)
+  ([x y] (cljs/neg? (-compare x y)))
+  ([x y z & more]
+     (vararg < x y z more)))
+
+(defn >
+  ([x] true)
+  ([x y] (cljs/pos? (-compare x y)))
+  ([x y z & more]
+     (vararg > x y z more)))
+
+(defn <=
+  ([x] true)
+  ([x y] (not (cljs/pos? (-compare x y))))
+  ([x y z & more]
+     (vararg <= x y z more)))
+
+(defn >=
+  ([x] true)
+  ([x y] (not (cljs/neg? (-compare x y))))
+  ([x y z & more]
+     (vararg >= x y z more)))
 
 (defn +
   ([] 0)
@@ -198,30 +233,16 @@
   ([x y] (-multiply x y))
   ([x y z & more] (reduce -multiply (list* x y z more))))
 
+(defn -
+  ([x] (-negate x))
+  ([x y & more]
+     (+ x (-negate (apply + y more)))))
 
-;; debugging
-(extend-type default
-  AddWithInteger
-  (-add-with-integer [x y]
-    (.log js/console "WAAAT")
-    (.log js/console x y)
-    (.log js/console
-          (.constructor x)
-          (.constructor y))
-    x)
-  AddWithRatio
-  (-add-with-ratio [x y]
-    (.log js/console "WAAAT--?")
-    (.log js/console x y)
-    (.log js/console
-          (.constructor x)
-          (.constructor y))
-    x)
-  Ordered
-  (-compare [x y]
-    (.log js/console "WEERRT")
-    (.log js/console x y)
-    (.log js/console
-          (.constructor x)
-          (.constructor y))
-    x))
+(defn /
+  ([x] (-invert x))
+  ([x y & more]
+     (* x (-invert (apply * y more)))))
+
+(defn zero? [x] (= x ZERO))
+(defn neg? [x] (< x ZERO))
+(defn pos? [x] (< ZERO x))
