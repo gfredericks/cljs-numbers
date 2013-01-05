@@ -8,4 +8,8 @@
   :cljsbuild {:builds [{:source-path "src-cljs"
                         :compiler {:output-to "main.js"
                                    :optimizations :whitespace
+                                   :pretty-print true}}
+                       {:source-path "test-cljs"
+                        :compiler {:output-to "test.js"
+                                   :optimizations :whitespace
                                    :pretty-print true}}]})
