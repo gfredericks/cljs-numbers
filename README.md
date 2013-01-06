@@ -18,7 +18,7 @@ In the `project.clj`:
 ## Usage
 
 The `cljs-numbers.core` namespace gives its own versions of most of the
-core math functions. So if you want to use them nakedly, youll have to
+core math functions. So if you want to use them nakedly, you'll have to
 have a rather elaborate `ns` declaration to exclude the `clojure.core`
 versions.
 
