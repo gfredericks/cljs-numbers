@@ -1,8 +1,11 @@
 # cljs-numbers
 
-Currently a library for doing exact arithmetic (bigints and ratios) in ClojureScript.
+cljs-numbers is currently a library for doing exact arithmetic
+(big-integers and ratios) in ClojureScript. No assumptions should be
+made about its performance or correctness.
 
-Maybe in the future (if needed and wanted) a full numeric tower.
+Maybe in the future (if needed and wanted) it could include a full
+numeric tower.
 
 ## Getting it
 
