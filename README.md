@@ -9,7 +9,7 @@ Maybe in the future (if needed and wanted) a full numeric tower.
 In the `project.clj`:
 
 ``` clojure
-[com.gfredericks/cljs-numbers "0.1.0"]
+[com.gfredericks/cljs-numbers "0.1.1"]
 ```
 
 ## Usage

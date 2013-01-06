@@ -1,7 +1,8 @@
-(defproject com.gfredericks/cljs-numbers "0.1.0"
+(defproject com.gfredericks/cljs-numbers "0.1.1"
   :description "Exact arithmetic in ClojureScript"
   :dependencies [[org.clojure/clojure "1.5.0-RC1"]]
   :plugins [[lein-cljsbuild "0.2.10"]]
+  :source-paths ["src" "src-cljs"]
   :cljsbuild {:builds [{:source-path "src-cljs"
                         :compiler {:output-to "main.js"
                                    :optimizations :whitespace
