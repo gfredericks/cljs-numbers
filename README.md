@@ -12,7 +12,7 @@ numeric tower.
 In the `project.clj`:
 
 ``` clojure
-[com.gfredericks/cljs-numbers "0.1.1"]
+[com.gfredericks/cljs-numbers "0.1.2"]
 ```
 
 ## Usage
