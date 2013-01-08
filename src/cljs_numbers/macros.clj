@@ -14,13 +14,18 @@
                                (-> % numerator bigint)
                                (-> % denominator bigint))}))
 
+(defn type-convert-form
+  [form]
+  (postwalk (fn [x] (if-let [emitter (-> x type type-conversions)]
+                      (emitter x)
+                      x))
+            form))
+
 (defmacro with-numeric-literals
-  [& forms]
-  (cons 'do
-        (postwalk (fn [x] (if-let [emitter (-> x type type-conversions)]
-                            (emitter x)
-                            x))
-                  forms)))
+  ([form]
+     (type-convert-form form))
+  ([form1 form2 & more]
+     (cons 'do (map type-convert-form (list* form1 form2 more)))))
 
 ;; alias
 (defmacro wnl [& forms] (cons `with-numeric-literals forms))
