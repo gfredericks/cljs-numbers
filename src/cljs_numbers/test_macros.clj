@@ -1,4 +1,5 @@
 (ns cljs-numbers.test-macros
+  "Mimicking clojure.test by hand until I find a good cljs lib for this."
   (:use [clojure.walk :only [postwalk]]))
 
 (defmacro is
