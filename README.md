@@ -25,19 +25,19 @@ versions.
 ``` clojure
 (ns foo.bar
   (:refer-clojure :exclude [+ - * / = < > <= >= zero? pos? neg?])
-  (:require-macros [cljs-numbers.macros :refer [with-numeric-literals]])
+  (:require-macros [cljs-numbers.macros :refer [num-literals]])
   (:require [cljs-numbers.core :refer [+ - * / = < > <= >= bigint bigint?
                                        ratio? double? zero? pos? neg?]]
             ;; in case we need the normal stuff
             [cljs.core :as cljs]))
 
-(with-numeric-literals
+(num-literals
   (.log js/console (str (+ 84/7 4828948388888888888888838488441110N))))
 ```
 
 ## TODO
 
-- Look into extending compiler instead of `with-numeric-literals`
+- Look into extending compiler instead of `num-literals`
 - Make string versions of Ratio and Integer look nice
 
 ## Running Tests
