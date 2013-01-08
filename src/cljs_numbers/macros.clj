@@ -1,4 +1,4 @@
-(ns cljs-numbers.syntax-macros
+(ns cljs-numbers.macros
   (:use [clojure.walk :only [postwalk]]))
 
 ;; TODO: if the things becoming bigints are within double range

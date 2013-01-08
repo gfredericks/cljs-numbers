@@ -1,7 +1,7 @@
 (ns cljs-numbers.test
   (:refer-clojure :exclude [+ * = < > <= >= / -])
   (:require-macros [cljs-numbers.test-macros :refer [is are]]
-                   [cljs-numbers.syntax-macros :refer [with-numeric-literals]])
+                   [cljs-numbers.macros :refer [with-numeric-literals]])
   (:require [cljs-numbers.core :refer [+ - * / = < > <= >= bigint bigint? ratio? double?]]))
 
 (defn run-tests
