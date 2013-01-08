@@ -25,7 +25,7 @@ versions.
 ``` clojure
 (ns foo.bar
   (:refer-clojure :exclude [+ - * / = < > <= >= zero? pos? neg?])
-  (:require-macros [cljs-numbers.syntax-macros :refer [with-numeric-literals]])
+  (:require-macros [cljs-numbers.macros :refer [with-numeric-literals]])
   (:require [cljs-numbers.core :refer [+ - * / = < > <= >= bigint bigint?
                                        ratio? double? zero? pos? neg?]]
             ;; in case we need the normal stuff
