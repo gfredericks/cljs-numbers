@@ -189,7 +189,7 @@
 
 (defn- vararg
   [f x y z more]
-  (every? (partial apply f) (partition 2 (list* x y z more))))
+  (every? (partial apply f) (partition 2 1 (list* x y z more))))
 
 (defn =
   ([x] true)
