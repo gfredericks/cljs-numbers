@@ -1,5 +1,11 @@
 # cljs-numbers
 
+## This library is deprecated
+
+Because I made a better one that does the same thing: [exact](https://github.com/gfredericks/exact).
+
+# The old README
+
 cljs-numbers is currently a library for doing exact arithmetic
 (big-integers and ratios) in ClojureScript. No assumptions should be
 made about its performance or correctness.
